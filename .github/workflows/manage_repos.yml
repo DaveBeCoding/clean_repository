@@ -1,0 +1,29 @@
+name: Manage Repositories
+
+on:
+  schedule:
+    - cron: '0 0 * * SUN'  # Runs every Sunday at midnight
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  manage_repos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run repository management script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+        run: python manage_repos.py
+
