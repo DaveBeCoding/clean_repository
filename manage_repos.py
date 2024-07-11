@@ -3,7 +3,7 @@ import os
 
 GITHUB_API_URL = "https://api.github.com"
 GTOKEN = os.getenv("GTOKEN")
-GUSER = os.getenv("GUSER")
+GUSERNAMENAME = os.getenv("GUSERNAMENAME")
 
 headers = {
     "Authorization": f"token {GTOKEN}",
@@ -21,7 +21,7 @@ def get_repos():
         return []
 
 def archive_repo(repo):
-    url = f"{GITHUB_API_URL}/repos/{GUSER}/{repo['name']}"
+    url = f"{GITHUB_API_URL}/repos/{GUSERNAMENAME}/{repo['name']}"
     data = {"archived": True}
     response = requests.patch(url, headers=headers, json=data)
     print(f"Response from archive_repo: {response.status_code} {response.json()}")
