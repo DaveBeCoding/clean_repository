@@ -1,18 +1,19 @@
 import requests
 import os
+from datetime import datetime, timedelta
 
-# Fetch token and username
+# Fetch GitHub token and username from environment variables
 GTOKEN = os.getenv('GTOKEN')
 GUSERNAME = os.getenv('GUSERNAME')
 
-# Header, authentication
+# Set up headers for authentication
 HEADERS = {
     'Authorization': f'token {GTOKEN}',
     'Accept': 'application/vnd.github.v3+json'
 }
 
 def get_repos():
-    # Hit endpoint for user repositories
+    # API endpoint to list user repositories
     url = f'https://api.github.com/users/{GUSERNAME}/repos'
     response = requests.get(url, headers=HEADERS)
     print(f"Response from get_repos: {response.status_code}")
@@ -22,8 +23,16 @@ def get_repos():
         print(f"Failed to get repos: {response.status_code} {response.text}")
         return []
 
+def is_repo_inactive_for_a_year(repo):
+    # Get the current date and the date one year ago
+    one_year_ago = datetime.now() - timedelta(days=365)
+    # Parse the pushed_at date from the repository
+    last_push_date = datetime.strptime(repo['pushed_at'], '%Y-%m-%dT%H:%M:%SZ')
+    # Check if the last push date is older than one year ago
+    return last_push_date < one_year_ago
+
 def archive_repo(repo_name):
-    # Endpoint to update repository (set archived to true)
+    # API endpoint to update repository (set archived to true)
     url = f'https://api.github.com/repos/{GUSERNAME}/{repo_name}'
     response = requests.patch(url, headers=HEADERS, json={'archived': True})
     print(f"Response from archive_repo: {response.status_code} {response.json()}")
@@ -33,11 +42,12 @@ def archive_repo(repo_name):
         print(f"Failed to archive repository: {repo_name}")
 
 def main():
-    # Get list of repositories and archive each one
+    # Get list of repositories and archive each one that is inactive for a year
     repos = get_repos()
     for repo in repos:
-        repo_name = repo['name']
-        archive_repo(repo_name)
+        if is_repo_inactive_for_a_year(repo):
+            repo_name = repo['name']
+            archive_repo(repo_name)
 
 if __name__ == '__main__':
     main()
