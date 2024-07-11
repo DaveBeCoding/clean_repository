@@ -2,7 +2,7 @@ name: Manage Repositories
 
 on:
   schedule:
-    - cron: '0 0 * * SUN'  # Runs every Sunday at midnight
+    - cron: '0 0 * * MON'  # Runs every Monday at midnight
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
@@ -23,7 +23,6 @@ jobs:
 
       - name: Run repository management script
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USERNAME: ${{ github.repository_owner }}
+          GTOKEN: ${{ secrets.GTOKEN }}
+          GUSERNAME: ${{ secrets.GUSERNAME }}
         run: python manage_repos.py
-
