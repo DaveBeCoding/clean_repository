@@ -2,27 +2,34 @@ name: Manage Repositories
 
 on:
   schedule:
-    - cron: '0 0 * * MON'  # Runs every Monday at midnight
+    - cron: '0 0 * * SUN'  # Runs every Sunday at midnight
   workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
-  manage_repos:
+  archive:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Provides read/write access to the repository contents
+      issues: write  # Provides read/write access to issues
+      pull-requests: write  # Provides read/write access to pull requests
+      actions: write  # Provides control over workflow actions
+      deployments: write  # Provides read/write access to deployment statuses
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-      - name: Install dependencies
-        run: pip install requests
+    - name: Install dependencies
+      run: pip install requests
 
-      - name: Run repository management script
-        env:
-          GTOKEN: ${{ secrets.GTOKEN }}
-          GUSERNAME: ${{ secrets.GUSERNAME }}
-        run: python manage_repos.py
+    - name: Run repository management script
+      env:
+        GITHUB_TOKEN: ${{ secrets.GTOKEN }}
+        GITHUB_USERNAME: ${{ github.repository_owner }}
+      run: python manage_repos.py
