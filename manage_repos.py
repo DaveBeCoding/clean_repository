@@ -1,43 +1,43 @@
 import requests
 import os
 
-def get_repos(username, token):
-    url = f"https://api.github.com/users/{username}/repos"
-    headers = {"Authorization": f"token {token}"}
+GITHUB_API_URL = "https://api.github.com"
+GITHUB_TOKEN = os.getenv("GTOKEN")
+GITHUB_USERNAME = os.getenv("GITHUB_USERNAME")
+
+headers = {
+    "Authorization": f"token {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github.v3+json"
+}
+
+def get_repos():
+    url = f"{GITHUB_API_URL}/user/repos"
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
-        print(f"Failed to fetch repos: {response.status_code}")
+        print(f"Response from get_repos: {response.status_code}")
+        print(response.json())
         return []
 
-def archive_repo(repo, token):
-    url = f"https://api.github.com/repos/{repo['full_name']}"
-    headers = {
-        "Authorization": f"token {token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
+def archive_repo(repo):
+    url = f"{GITHUB_API_URL}/repos/{GITHUB_USERNAME}/{repo['name']}"
     data = {"archived": True}
     response = requests.patch(url, headers=headers, json=data)
-    return response.status_code, response.json()
+    print(f"Response from archive_repo: {response.status_code} {response.json()}")
+    if response.status_code == 200:
+        print(f"Archived repository: {repo['name']}")
 
 def main():
-    username = os.getenv("GITHUB_USERNAME")
-    token = os.getenv("GTOKEN")
-
-    repos = get_repos(username, token)
-    print(f"Response from get_repos: {len(repos)}")
-    print(f"Type of repos: {type(repos)}")
-    print(f"Repos content: {repos}")
-
-    for repo in repos:
-        if not repo['private']:
-            status_code, response_content = archive_repo(repo, token)
-            print(f"Response from archive_repo: {status_code} {response_content}")
-            if status_code == 200:
-                print(f"Archived repository: {repo['name']}")
-            else:
-                print(f"Failed to archive repository: {repo['name']} with status {status_code}")
+    repos = get_repos()
+    if isinstance(repos, list):
+        print(f"Type of repos: {type(repos)}")
+        print(f"Repos content: {repos}")
+        for repo in repos:
+            if not repo['private']:  # Process only public repositories
+                archive_repo(repo)
+    else:
+        print("Failed to retrieve repositories")
 
 if __name__ == "__main__":
     main()

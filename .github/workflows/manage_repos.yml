@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write  # Provides read/write access to the repository contents
-      issues: write  # Provides read/write access to issues
-      pull-requests: write  # Provides read/write access to pull requests
-      actions: write  # Provides control over workflow actions
-      deployments: write  # Provides read/write access to deployment statuses
+      contents: write
+      issues: write
+      pull-requests: write
+      actions: write
+      deployments: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+      discussions: write
 
     steps:
       - name: Checkout repository
